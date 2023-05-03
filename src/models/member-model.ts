@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -11,13 +11,13 @@ interface IMember {
 }
 
 const memberSchema = new Schema({
-  preferredName: { type: String, required: true },
+  preferredName: {type: String, required: true},
   legalName: String,
   email: String,
   phone: String,
   birthday: Date,
 });
 
-const Member = mongoose.model("Member", memberSchema);
+const Member = mongoose.model('Member', memberSchema);
 
 export default Member;
