@@ -11,10 +11,28 @@ export type Member = {
   phone?: string;
   birthday?: Date;
 };
+const FIELDS = [
+  'preferredName',
+  'isActive',
+  'memberSince',
+  'legalName',
+  'email',
+  'phone',
+  'birthday',
+];
 
-export type MemberFields = keyof Member;
+export function normalizeFields(maybeFields: string[]): string[] {
+  return maybeFields.filter((maybeField) => FIELDS.includes(maybeField));
+}
 
-// export normalizeMemberData()
+export function normalizeData(maybeData: {[key: string]: any}): {
+  [key: string]: any;
+} {
+  const entries = Object.entries(maybeData).filter(([maybeField, _]) =>
+    FIELDS.includes(maybeField)
+  );
+  return Object.fromEntries(entries);
+}
 
 const memberSchema = new Schema({
   preferredName: {type: String, required: true},
