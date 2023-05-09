@@ -1,11 +1,12 @@
 import {Request, Response, NextFunction} from 'express';
-import Member, {normalizeFields, normalizeData} from '../models/member-model';
+import Member, {MemberFields} from '../models/member-model';
+import {normalizeData, normalizeFields} from '../utils/normalize-utils';
 
 const getAllMembers = (req: Request, res: Response, next: NextFunction) => {
   let fields: string[] = [];
   if (req.query.fields != null && typeof req.query.fields === 'string') {
     const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields);
+    fields = normalizeFields(maybeFields, MemberFields);
   }
 
   let membersQuery = Member.find();
@@ -28,7 +29,7 @@ const getMemberById = (req: Request, res: Response, next: NextFunction) => {
   let fields: string[] = [];
   if (req.query.fields != null && typeof req.query.fields === 'string') {
     const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields);
+    fields = normalizeFields(maybeFields, MemberFields);
   }
 
   let memberQuery = Member.findById(id);
@@ -46,7 +47,7 @@ const getMemberById = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createMember = (req: Request, res: Response, next: NextFunction) => {
-  const memberData = normalizeData(req.body);
+  const memberData = normalizeData(req.body, MemberFields);
   const member = new Member(memberData);
   member
     .save()
@@ -60,7 +61,7 @@ const createMember = (req: Request, res: Response, next: NextFunction) => {
 
 const updateMember = (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
-  const memberData = normalizeData(req.body);
+  const memberData = normalizeData(req.body, MemberFields);
   Member.findByIdAndUpdate(id, memberData, {new: true})
     .then(() => {
       res.status(200).json({message: 'Member updated successfully'});

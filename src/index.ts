@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import membersRoutes from './routers/members';
+import productionsRoutes from './routers/productions';
+import skillsRoutes from './routers/skills';
 const app = express();
 
 // Parse JSON bodies
@@ -24,6 +26,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/members', membersRoutes);
+app.use('/productions', productionsRoutes);
+app.use('/skills', skillsRoutes);
 
 // Start server
 const port = 3000;

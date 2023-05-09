@@ -10,8 +10,9 @@ export type Member = {
   email?: string;
   phone?: string;
   birthday?: Date;
+  hobbies?: string;
 };
-const FIELDS = [
+export const MemberFields = [
   'preferredName',
   'isActive',
   'memberSince',
@@ -19,20 +20,8 @@ const FIELDS = [
   'email',
   'phone',
   'birthday',
+  'hobbies',
 ];
-
-export function normalizeFields(maybeFields: string[]): string[] {
-  return maybeFields.filter((maybeField) => FIELDS.includes(maybeField));
-}
-
-export function normalizeData(maybeData: {[key: string]: any}): {
-  [key: string]: any;
-} {
-  const entries = Object.entries(maybeData).filter(([maybeField, _]) =>
-    FIELDS.includes(maybeField)
-  );
-  return Object.fromEntries(entries);
-}
 
 const memberSchema = new Schema({
   preferredName: {type: String, required: true},
@@ -42,6 +31,7 @@ const memberSchema = new Schema({
   email: String,
   phone: String,
   birthday: Date,
+  hobbies: String,
 });
 
 const Member = mongoose.model('Member', memberSchema);
