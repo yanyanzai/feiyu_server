@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, {Types} from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -11,6 +11,7 @@ export type Member = {
   phone?: string;
   birthday?: Date;
   hobbies?: string;
+  positions?: Types.ObjectId[];
 };
 export const MemberFields = [
   'preferredName',
@@ -21,6 +22,7 @@ export const MemberFields = [
   'phone',
   'birthday',
   'hobbies',
+  'positions',
 ];
 
 const memberSchema = new Schema({
@@ -32,6 +34,7 @@ const memberSchema = new Schema({
   phone: String,
   birthday: Date,
   hobbies: String,
+  positions: [{type: Schema.Types.ObjectId, ref: 'Position'}],
 });
 
 const Member = mongoose.model('Member', memberSchema);

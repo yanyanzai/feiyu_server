@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import membersRoutes from './routers/members';
 import productionsRoutes from './routers/productions';
 import skillsRoutes from './routers/skills';
+import positionsRoutes from './routers/positions';
 const app = express();
 
 // Parse JSON bodies
@@ -21,13 +22,10 @@ mongoose
   });
 
 // Define routes
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
-
 app.use('/members', membersRoutes);
 app.use('/productions', productionsRoutes);
 app.use('/skills', skillsRoutes);
+app.use('/position', positionsRoutes);
 
 // Start server
 const port = 3000;
