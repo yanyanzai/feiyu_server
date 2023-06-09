@@ -1,86 +1,40 @@
-import {Request, Response, NextFunction} from 'express';
-import Member, {MemberFields} from '../models/member-model';
-import {normalizeData, normalizeFields} from '../utils/normalize-utils';
+import type {Member as MemberType} from '../models/member-model';
+import Member from '../models/member-model';
 
-const getAllMembers = (req: Request, res: Response, next: NextFunction) => {
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, MemberFields);
-  }
-
+function getAllMembers(fields: string[]): Promise<MemberType[]> {
   let membersQuery = Member.find();
   if (fields.length !== 0) {
     membersQuery = membersQuery.select(fields);
   }
+  return membersQuery;
+}
 
-  membersQuery
-    .then((members) => {
-      res.status(200).json(members);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const getMemberById = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, MemberFields);
-  }
-
+function getMemberById(
+  id: string,
+  fields: string[]
+): Promise<MemberType | null> {
   let memberQuery = Member.findById(id);
   if (fields.length !== 0) {
     memberQuery = memberQuery.select(fields);
   }
+  return memberQuery;
+}
 
-  memberQuery
-    .then((member) => {
-      res.status(200).json(member);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const createMember = (req: Request, res: Response, next: NextFunction) => {
-  const memberData = normalizeData(req.body, MemberFields);
+function createMember(memberData: {[key: string]: any}): Promise<MemberType> {
   const member = new Member(memberData);
-  member
-    .save()
-    .then(() => {
-      res.status(201).json({message: 'Member created successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+  return member.save();
+}
 
-const updateMember = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  const memberData = normalizeData(req.body, MemberFields);
-  Member.findByIdAndUpdate(id, memberData, {new: true})
-    .then(() => {
-      res.status(200).json({message: 'Member updated successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function updateMember(
+  id: string,
+  memberData: {[key: string]: any}
+): Promise<MemberType | null> {
+  return Member.findByIdAndUpdate(id, memberData, {new: true});
+}
 
-const deleteMember = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  Member.findByIdAndDelete(id)
-    .then(() => {
-      res.status(200).json({message: 'Member deleted successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function deleteMember(id: string): Promise<null> {
+  return Member.findByIdAndDelete(id);
+}
 
 export default {
   getAllMembers,

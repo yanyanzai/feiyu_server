@@ -1,86 +1,42 @@
-import {Request, Response, NextFunction} from 'express';
+import type {Production as ProductionType} from '../models/production-model';
 import Production, {ProductionFields} from '../models/production-model';
-import {normalizeData, normalizeFields} from '../utils/normalize-utils';
 
-const getAllProductions = (req: Request, res: Response, next: NextFunction) => {
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, ProductionFields);
-  }
-
+function getAllProductions(fields: string[]): Promise<ProductionType[]> {
   let productionsQuery = Production.find();
   if (fields.length !== 0) {
     productionsQuery = productionsQuery.select(fields);
   }
+  return productionsQuery;
+}
 
-  productionsQuery
-    .then((productions) => {
-      res.status(200).json(productions);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const getProductionById = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, ProductionFields);
-  }
-
+function getProductionById(
+  id: string,
+  fields: string[]
+): Promise<ProductionType | null> {
   let productionQuery = Production.findById(id);
   if (fields.length !== 0) {
     productionQuery = productionQuery.select(fields);
   }
+  return productionQuery;
+}
 
-  productionQuery
-    .then((production) => {
-      res.status(200).json(production);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const createProduction = (req: Request, res: Response, next: NextFunction) => {
-  const productionData = normalizeData(req.body, ProductionFields);
+function createProduction(productionData: {
+  [key: string]: any;
+}): Promise<ProductionType> {
   const production = new Production(productionData);
-  production
-    .save()
-    .then(() => {
-      res.status(201).json({message: 'Production created successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+  return production.save();
+}
 
-const updateProduction = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  const productionData = normalizeData(req.body, ProductionFields);
-  Production.findByIdAndUpdate(id, productionData, {new: true})
-    .then(() => {
-      res.status(200).json({message: 'Production updated successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function updateProduction(
+  id: string,
+  productionData: {[key: string]: any}
+): Promise<ProductionType | null> {
+  return Production.findByIdAndUpdate(id, productionData, {new: true});
+}
 
-const deleteProduction = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  Production.findByIdAndDelete(id)
-    .then(() => {
-      res.status(200).json({message: 'Production deleted successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function deleteProduction(id: string): Promise<null> {
+  return Production.findByIdAndDelete(id);
+}
 
 export default {
   getAllProductions,

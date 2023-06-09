@@ -1,86 +1,37 @@
-import {Request, Response, NextFunction} from 'express';
+import type {Skill as SkillType} from '../models/skill-model';
 import Skill, {SkillFields} from '../models/skill-model';
-import {normalizeData, normalizeFields} from '../utils/normalize-utils';
 
-const getAllSkills = (req: Request, res: Response, next: NextFunction) => {
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, SkillFields);
-  }
-
+function getAllSkills(fields: string[]): Promise<SkillType[]> {
   let skillsQuery = Skill.find();
   if (fields.length !== 0) {
     skillsQuery = skillsQuery.select(fields);
   }
+  return skillsQuery;
+}
 
-  skillsQuery
-    .then((skills) => {
-      res.status(200).json(skills);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const getSkillById = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-
-  let fields: string[] = [];
-  if (req.query.fields != null && typeof req.query.fields === 'string') {
-    const maybeFields = req.query.fields.split(',');
-    fields = normalizeFields(maybeFields, SkillFields);
-  }
-
+function getSkillById(id: string, fields: string[]): Promise<SkillType | null> {
   let skillQuery = Skill.findById(id);
   if (fields.length !== 0) {
     skillQuery = skillQuery.select(fields);
   }
+  return skillQuery;
+}
 
-  skillQuery
-    .then((skill) => {
-      res.status(200).json(skill);
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-const createSkill = (req: Request, res: Response, next: NextFunction) => {
-  const skillData = normalizeData(req.body, SkillFields);
+function createSkill(skillData: {[key: string]: any}): Promise<SkillType> {
   const skill = new Skill(skillData);
-  skill
-    .save()
-    .then(() => {
-      res.status(201).json({message: 'Skill created successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+  return skill.save();
+}
 
-const updateSkill = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  const skillData = normalizeData(req.body, SkillFields);
-  Skill.findByIdAndUpdate(id, skillData, {new: true})
-    .then(() => {
-      res.status(200).json({message: 'Skill updated successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function updateSkill(
+  id: string,
+  skillData: {[key: string]: any}
+): Promise<SkillType | null> {
+  return Skill.findByIdAndUpdate(id, skillData, {new: true});
+}
 
-const deleteSkill = (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id;
-  Skill.findByIdAndDelete(id)
-    .then(() => {
-      res.status(200).json({message: 'Skill deleted successfully'});
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+function deleteSkill(id: string): Promise<null> {
+  return Skill.findByIdAndDelete(id);
+}
 
 export default {
   getAllSkills,
